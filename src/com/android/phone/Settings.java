@@ -347,6 +347,12 @@ public class Settings extends PreferenceActivity implements DialogInterface.OnCl
                     case Phone.NT_MODE_CDMA:
                         modemNetworkMode = Phone.NT_MODE_CDMA;
                         break;
+                    case Phone.NT_MODE_LTE_CDMA_EVDO:
+                        modemNetworkMode = Phone.NT_MODE_LTE_CDMA_EVDO;
+                        break;
+                    case Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA:
+                        modemNetworkMode = Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA;
+                        break;
                     case Phone.NT_MODE_GSM_UMTS:
                         modemNetworkMode = Phone.NT_MODE_GSM_UMTS;
                         break;
@@ -358,6 +364,9 @@ public class Settings extends PreferenceActivity implements DialogInterface.OnCl
                         break;
                     case Phone.NT_MODE_WCDMA_PREF:
                         modemNetworkMode = Phone.NT_MODE_WCDMA_PREF;
+                        break;
+                    case Phone.NT_MODE_LTE_GSM_WCDMA:
+                        modemNetworkMode = Phone.NT_MODE_LTE_GSM_WCDMA;
                         break;
                     default:
                         modemNetworkMode = Phone.PREFERRED_NT_MODE;
@@ -433,6 +442,9 @@ public class Settings extends PreferenceActivity implements DialogInterface.OnCl
                         modemNetworkMode == Phone.NT_MODE_CDMA ||
                         modemNetworkMode == Phone.NT_MODE_CDMA_NO_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CDMA_EVDO ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_GSM_WCDMA ||
                         modemNetworkMode == Phone.NT_MODE_GLOBAL ) {
                     if (DBG) {
                         log("handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = " +
@@ -537,6 +549,18 @@ public class Settings extends PreferenceActivity implements DialogInterface.OnCl
             case Phone.NT_MODE_EVDO_NO_CDMA:
                 mButtonPreferredNetworkMode.setSummary(
                         R.string.preferred_network_mode_evdo_only_summary);
+                break;
+            case Phone.NT_MODE_LTE_GSM_WCDMA:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_gsm_summary);
+                break;
+            case Phone.NT_MODE_LTE_CDMA_EVDO:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_cdma_evdo_summary);
+                break;
+            case Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_cdma_evdo_gsm_wcdma_summary);
                 break;
             case Phone.NT_MODE_GLOBAL:
             default:
