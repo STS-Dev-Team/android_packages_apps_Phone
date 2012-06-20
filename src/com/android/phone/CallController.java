@@ -365,6 +365,7 @@ public class CallController extends Handler {
                         phone.getServiceState().getState());
             }
             else {
+                log(">>>> phone.getServiceState == NULL, setting CallStatusCode.OUT_OF_SERVICE");
                 return CallStatusCode.OUT_OF_SERVICE;
             }
 
