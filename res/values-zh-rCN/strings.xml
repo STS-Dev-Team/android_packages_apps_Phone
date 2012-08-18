@@ -673,4 +673,20 @@
     <string name="vibrate_hangup_sum">通话结束时震动</string>
     <string name="vibrate_call_waiting">呼叫等待震动</string>
     <string name="vibrate_call_waiting_sum">当呼叫等待时震动</string>
+
+    <!-- Extra Feature Strings -->
+    <string name="ring_delay_title">铃声延迟</string>
+    <string name="ring_delay_summary">选择铃声延迟时间</string>
+
+    <!-- Ring Delay entries.  -->
+    <string-array name="ring_delay_entries">
+        <item>关闭</item>
+        <item>3 秒</item>
+        <item>6 秒</item>
+        <item>9 秒</item>
+    </string-array>
+
+    <string name="per_change_mobile_network">更改网络（2G/3G）</string>
+    <string name="per_change_mobile_network_desc">可以在任何时候切换2G或3G数据，3G速度更快但消耗更多电量，费用也更高。</string>
+
 </resources>
