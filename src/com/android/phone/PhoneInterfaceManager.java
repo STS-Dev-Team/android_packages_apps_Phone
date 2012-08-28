@@ -40,6 +40,7 @@ import com.android.internal.telephony.DefaultPhoneNotifier;
 import com.android.internal.telephony.IccCard;
 import com.android.internal.telephony.ITelephony;
 import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.CallManager;
 import com.android.internal.telephony.PhoneConstants;
 
@@ -807,9 +808,5 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     public int getLteOnCdmaMode() {
         return mPhone.getLteOnCdmaMode();
-    }
-
-    public int getLteOnGsmMode() {
-        return mPhone.getLteOnGsmMode();
     }
 }
