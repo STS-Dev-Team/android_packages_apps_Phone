@@ -64,7 +64,9 @@ public class PhoneToggler extends BroadcastReceiver  {
                     }
                 }
                 if (context.getResources().getBoolean(R.bool.world_phone) || isLteOnCdma) {
-                    if (networkMode == Phone.NT_MODE_GLOBAL) {
+                    if (networkMode == Phone.NT_MODE_GLOBAL
+                            || networkMode == Phone.NT_MODE_LTE_CDMA_EVDO
+                            || networkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA) {
                         networkModeOk = true;
                     }
                 }
