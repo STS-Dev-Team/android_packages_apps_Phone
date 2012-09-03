@@ -66,7 +66,8 @@ public class PhoneToggler extends BroadcastReceiver  {
                 if (context.getResources().getBoolean(R.bool.world_phone) || isLteOnCdma) {
                     if (networkMode == Phone.NT_MODE_GLOBAL
                             || networkMode == Phone.NT_MODE_LTE_CDMA_EVDO
-                            || networkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA) {
+                            || networkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA
+                            || modemNetworkMode == Phone.NT_MODE_LTE_ONLY) {
                         networkModeOk = true;
                     }
                 }
@@ -137,6 +138,7 @@ public class PhoneToggler extends BroadcastReceiver  {
                         modemNetworkMode == Phone.NT_MODE_CDMA ||
                         modemNetworkMode == Phone.NT_MODE_CDMA_NO_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_ONLY  ||
                         //A modem might report world phone sometimes
                         //but it's not true. Double check here
                         (getPhone().getContext().getResources().getBoolean(R.bool.world_phone) == true &&
@@ -158,8 +160,6 @@ public class PhoneToggler extends BroadcastReceiver  {
                     Intent intent = new Intent(NETWORK_MODE_CHANGED);
                     intent.putExtra(NETWORK_MODE, settingsNetworkMode);
                     getPhone().getContext().sendBroadcast(intent,CHANGE_NETWORK_MODE_PERM);
-                } else if (modemNetworkMode == Phone.NT_MODE_LTE_ONLY) {
-                    if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: lte only: no action");
                 } else {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: else: reset to default");
                     resetNetworkModeToDefault();
