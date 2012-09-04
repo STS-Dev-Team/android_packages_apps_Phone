@@ -377,16 +377,11 @@ public class MobileNetworkSettings extends PreferenceActivity
                     case Phone.NT_MODE_WCDMA_PREF:
                         modemNetworkMode = Phone.NT_MODE_WCDMA_PREF;
                         break;
+                    case Phone.NT_MODE_LTE_ONLY:
+                        modemNetworkMode = Phone.NT_MODE_LTE_ONLY;
+                        break;
                     default:
                         modemNetworkMode = Phone.PREFERRED_NT_MODE;
-                }
-
-                // If button has no valid selection && setting is LTE ONLY
-                // mode, let the setting stay in LTE ONLY mode. UI is not
-                // supported but LTE ONLY mode could be used in testing.
-                if ((modemNetworkMode == Phone.PREFERRED_NT_MODE) &&
-                    (settingsNetworkMode == Phone.NT_MODE_LTE_ONLY)) {
-                    return true;
                 }
 
                 UpdatePreferredNetworkModeSummary(buttonNetworkMode);
