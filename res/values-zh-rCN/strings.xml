@@ -688,7 +688,5 @@
 
     <string name="exit_to_home_screen_title">通话结束后返回主屏幕</string>
     <string name="exit_to_home_screen_summary">通话结束后返回主屏幕而不是返回通话记录</string>
-    <string name="phone_number_label">本机号码</string>
-    <string name="phone_number_summary">设置当前设备的电话号码</string>
 
 </resources>
