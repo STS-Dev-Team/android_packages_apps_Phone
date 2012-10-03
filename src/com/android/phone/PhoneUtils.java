@@ -249,7 +249,7 @@ public class PhoneUtils {
 
         // If the ringer is currently ringing and/or vibrating, stop it
         // right now and prevent new rings (before actually answering the call)
-        PhoneApp.getInstance().notifier.silenceRinger();
+        app.notifier.silenceRinger();
 
         final Phone phone = ringing.getPhone();
         final boolean phoneIsCdma = (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_CDMA);
