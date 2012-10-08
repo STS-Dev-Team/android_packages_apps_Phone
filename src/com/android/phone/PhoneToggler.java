@@ -137,10 +137,13 @@ public class PhoneToggler extends BroadcastReceiver  {
                         modemNetworkMode == Phone.NT_MODE_CDMA ||
                         modemNetworkMode == Phone.NT_MODE_CDMA_NO_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CDMA_EVDO ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_ONLY  ||
                         //A modem might report world phone sometimes
                         //but it's not true. Double check here
                         (getPhone().getContext().getResources().getBoolean(R.bool.world_phone) == true &&
-                            modemNetworkMode == Phone.NT_MODE_GLOBAL) ) {
+                            (modemNetworkMode == Phone.NT_MODE_GLOBAL || modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA)) ) {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = "+modemNetworkMode);
 
                     //check changes in modemNetworkMode and updates settingsNetworkMode
