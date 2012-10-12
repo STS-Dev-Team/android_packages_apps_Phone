@@ -103,6 +103,8 @@ public class CallFeaturesSetting extends PreferenceActivity
     private static final String LOG_TAG = "CallFeaturesSetting";
     private static final boolean DBG = (PhoneApp.DBG_LEVEL >= 2);
 
+    protected Context mContext;
+
     /**
      * Intent action to bring up Voicemail Provider settings.
      *
@@ -1659,7 +1661,7 @@ public class CallFeaturesSetting extends PreferenceActivity
             }
         }
 
-        if (!getResources().getBoolean(R.bool.world_phone)) {
+        if (Settings.System.getInt(getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) == 1) {
             Preference options = prefSet.findPreference(BUTTON_CDMA_OPTIONS);
             if (options != null)
                 prefSet.removePreference(options);

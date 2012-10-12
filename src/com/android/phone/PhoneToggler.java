@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.telephony.Phone;
@@ -13,6 +14,8 @@ import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 
 public class PhoneToggler extends BroadcastReceiver  {
+
+    protected Context mContext;
 
     /** Used for brodcasting network data change and receive new mode **/
     public static final String NETWORK_MODE_CHANGED="com.android.internal.telephony.NETWORK_MODE_CHANGED";
@@ -63,7 +66,8 @@ public class PhoneToggler extends BroadcastReceiver  {
                         networkModeOk = true;
                     }
                 }
-                if (context.getResources().getBoolean(R.bool.world_phone) || isLteOnCdma) {
+                if ((Settings.System.getInt(getPhone().getContext().getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) != 0)
+                        || isLteOnCdma) {
                     if (networkMode == Phone.NT_MODE_GLOBAL
                             || networkMode == Phone.NT_MODE_LTE_CDMA_EVDO
                             || networkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA) {
@@ -142,7 +146,7 @@ public class PhoneToggler extends BroadcastReceiver  {
                         modemNetworkMode == Phone.NT_MODE_LTE_ONLY  ||
                         //A modem might report world phone sometimes
                         //but it's not true. Double check here
-                        (getPhone().getContext().getResources().getBoolean(R.bool.world_phone) == true &&
+                        (Settings.System.getInt(getPhone().getContext().getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) != 0 &&
                             (modemNetworkMode == Phone.NT_MODE_GLOBAL || modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA)) ) {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = "+modemNetworkMode);
 
