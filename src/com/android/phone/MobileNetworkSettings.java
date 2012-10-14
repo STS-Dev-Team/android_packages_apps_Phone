@@ -22,6 +22,7 @@ import com.android.internal.telephony.TelephonyIntents;
 import com.android.internal.telephony.TelephonyProperties;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +40,7 @@ import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceScreen;
+import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -58,6 +60,8 @@ import android.view.MenuItem;
 public class MobileNetworkSettings extends PreferenceActivity
         implements DialogInterface.OnClickListener,
         DialogInterface.OnDismissListener, Preference.OnPreferenceChangeListener{
+
+    protected Context mContext;
 
     // debug data
     private static final String LOG_TAG = "NetworkSettings";
@@ -223,7 +227,7 @@ public class MobileNetworkSettings extends PreferenceActivity
         mLteDataServicePref = prefSet.findPreference(BUTTON_CDMA_LTE_DATA_SERVICE_KEY);
 
         boolean isLteOnCdma = mPhone.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
-        if (getResources().getBoolean(R.bool.world_phone) == true) {
+        if (Settings.System.getInt(getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) != 0) {
             // set the listener for the mButtonPreferredNetworkMode list preference so we can issue
             // change Preferred Network Mode.
             mButtonPreferredNetworkMode.setOnPreferenceChangeListener(this);
