@@ -13,6 +13,8 @@ import com.android.internal.telephony.PhoneFactory;
 
 public class PhoneToggler extends BroadcastReceiver  {
 
+    protected Context mContext;
+
     /** Used for brodcasting network data change and receive new mode **/
     public static final String NETWORK_MODE_CHANGED="com.android.internal.telephony.NETWORK_MODE_CHANGED";
     public static final String REQUEST_NETWORK_MODE="com.android.internal.telephony.REQUEST_NETWORK_MODE";
@@ -63,7 +65,8 @@ public class PhoneToggler extends BroadcastReceiver  {
                         networkModeOk = true;
                     }
                 }
-                if (context.getResources().getBoolean(R.bool.world_phone) || isLteOnCdma) {
+                if ((Settings.System.getInt(getPhone().getContext().getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) != 0)
+                        || isLteOnCdma) {
                     if (networkMode == Phone.NT_MODE_GLOBAL) {
                         networkModeOk = true;
                     }
@@ -138,7 +141,7 @@ public class PhoneToggler extends BroadcastReceiver  {
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
                         //A modem might report world phone sometimes
                         //but it's not true. Double check here
-                        (getPhone().getContext().getResources().getBoolean(R.bool.world_phone) == true &&
+                        (Settings.System.getInt(getPhone().getContext().getContentResolver(), Settings.System.WORLD_PHONE_STATE, 0) != 0 &&
                             modemNetworkMode == Phone.NT_MODE_GLOBAL) ) {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = "+modemNetworkMode);
 
