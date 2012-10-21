@@ -773,9 +773,8 @@ public class CallNotifier extends Handler
                 }
                 // Stop any signal info tone when call moves to ACTIVE state
                 stopSignalInfoTone();
-                }
-                mPreviousCdmaCallState = fgPhone.getForegroundCall().getState();
             }
+            mPreviousCdmaCallState = fgPhone.getForegroundCall().getState();
         }
 
         // Have the PhoneApp recompute its mShowBluetoothIndication

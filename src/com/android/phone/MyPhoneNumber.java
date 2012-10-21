@@ -1,6 +1,6 @@
 package com.android.phone;
 
-import com.android.internal.telephony.IccCard;
+import com.android.internal.telephony.IccCardConstants;
 import com.android.internal.telephony.Phone;
 import com.android.internal.telephony.PhoneFactory;
 
@@ -24,9 +24,9 @@ public class MyPhoneNumber extends BroadcastReceiver {
 
         String phoneNum = mTelephonyMgr.getLine1Number();
         String savedNum = prefs.getString(MSISDNEditPreference.PHONE_NUMBER, null);
-        String simState = intent.getStringExtra(IccCard.INTENT_KEY_ICC_STATE);
+        String simState = intent.getStringExtra(IccCardConstants.INTENT_KEY_ICC_STATE);
 
-        if (!IccCard.INTENT_VALUE_ICC_LOADED.equals(simState)) {
+        if (!IccCardConstants.INTENT_VALUE_ICC_LOADED.equals(simState)) {
             /* Don't set line 1 number unless SIM_STATE is LOADED
              * (We're not using READY because the MSISDN record is not yet loaded on READY)
              */

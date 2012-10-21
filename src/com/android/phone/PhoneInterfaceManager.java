@@ -285,17 +285,11 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
 
     public void toggleLTE(boolean on) {
         int network = -1;
-        if (getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE) {
+        if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
             if (on) {
                 network = Phone.NT_MODE_GLOBAL;
             } else {
                 network = Phone.NT_MODE_CDMA;
-            }
-        } else if (getLteOnGsmMode() != 0) {
-            if (on) {
-                network = Phone.NT_MODE_LTE_GSM_WCDMA;
-            } else {
-                network = Phone.NT_MODE_WCDMA_PREF;
             }
         }
         mPhone.setPreferredNetworkType(network,
@@ -814,9 +808,5 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
      */
     public int getLteOnCdmaMode() {
         return mPhone.getLteOnCdmaMode();
-    }
-
-    public int getLteOnGsmMode() {
-        return mPhone.getLteOnGsmMode();
     }
 }

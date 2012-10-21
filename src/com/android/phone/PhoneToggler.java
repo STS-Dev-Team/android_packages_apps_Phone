@@ -6,9 +6,11 @@ import android.content.Intent;
 import android.os.AsyncResult;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 
 import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 
 public class PhoneToggler extends BroadcastReceiver  {
@@ -48,9 +50,9 @@ public class PhoneToggler extends BroadcastReceiver  {
                 int networkMode = intent.getExtras().getInt(NETWORK_MODE);
                 boolean networkModeOk = false;
                 int phoneType = getPhone().getPhoneType();
-                boolean isLteOnCdma = getPhone().getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE;
+                boolean isLteOnCdma = getPhone().getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
 
-                if (phoneType == Phone.PHONE_TYPE_GSM) {
+                if (phoneType == PhoneConstants.PHONE_TYPE_GSM) {
                     if (networkMode == Phone.NT_MODE_GSM_ONLY
                             || networkMode == Phone.NT_MODE_GSM_UMTS
                             || networkMode == Phone.NT_MODE_WCDMA_PREF
@@ -58,7 +60,7 @@ public class PhoneToggler extends BroadcastReceiver  {
                             || networkMode == Phone.NT_MODE_WCDMA_ONLY) {
                         networkModeOk = true;
                     }
-                } else if (phoneType == Phone.PHONE_TYPE_CDMA) {
+                } else if (phoneType == PhoneConstants.PHONE_TYPE_CDMA) {
                     if (networkMode == Phone.NT_MODE_CDMA
                             || networkMode == Phone.NT_MODE_CDMA_NO_EVDO
                             || networkMode == Phone.NT_MODE_EVDO_NO_CDMA) {

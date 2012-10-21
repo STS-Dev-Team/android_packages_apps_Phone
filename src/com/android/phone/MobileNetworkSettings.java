@@ -251,7 +251,7 @@ public class MobileNetworkSettings extends PreferenceActivity
             mCdmaOptions = new CdmaOptions(this, prefSet, mPhone);
             mGsmUmtsOptions = new GsmUmtsOptions(this, prefSet);
         } else {
-            if (!isLteOnCdma && !isLteOnGsm) {
+            if (!isLteOnCdma) {
                 prefSet.removePreference(mButtonPreferredNetworkMode);
             }
             int phoneType = mPhone.getPhoneType();
@@ -273,19 +273,6 @@ public class MobileNetworkSettings extends PreferenceActivity
 
             } else if (phoneType == PhoneConstants.PHONE_TYPE_GSM) {
                 mGsmUmtsOptions = new GsmUmtsOptions(this, prefSet);
-                if (isLteOnGsm) {
-                    mButtonPreferredNetworkMode.setOnPreferenceChangeListener(this);
-                    mButtonPreferredNetworkMode.setEntries(
-                            R.array.preferred_network_mode_choices_lte_gsm);
-                    mButtonPreferredNetworkMode.setEntryValues(
-                            R.array.preferred_network_mode_values_lte_gsm);
-                    int settingsNetworkMode = android.provider.Settings.Secure.getInt(
-                            mPhone.getContext().getContentResolver(),
-                            android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
-                            preferredNetworkMode);
-                    mButtonPreferredNetworkMode.setValue(
-                            Integer.toString(settingsNetworkMode));
-                }
             } else {
                 throw new IllegalStateException("Unexpected phone type: " + phoneType);
             }
@@ -467,7 +454,7 @@ public class MobileNetworkSettings extends PreferenceActivity
                             settingsNetworkMode);
                 }
 
-                boolean isLteOnCdma = mPhone.getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE;
+                boolean isLteOnCdma = mPhone.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
                 //check that modemNetworkMode is from an accepted value
                 if (modemNetworkMode == Phone.NT_MODE_WCDMA_PREF ||
                         modemNetworkMode == Phone.NT_MODE_GSM_ONLY ||
@@ -571,13 +558,14 @@ public class MobileNetworkSettings extends PreferenceActivity
                         R.string.preferred_network_mode_gsm_wcdma_summary);
                 break;
             case Phone.NT_MODE_CDMA:
-                switch (mPhone.getLteOnCdmaMode()) {
+                // Show the same label whether a CDMA or CDMA/LTE phone.
+                /*switch (mPhone.getLteOnCdmaMode()) {
                     case PhoneConstants.LTE_ON_CDMA_TRUE:
                         mButtonPreferredNetworkMode.setSummary(
                             R.string.preferred_network_mode_cdma_summary);
                     break;
                     case PhoneConstants.LTE_ON_CDMA_FALSE:
-                    default:
+                    default: */
                         mButtonPreferredNetworkMode.setSummary(
                             R.string.preferred_network_mode_cdma_evdo_summary);
                         /*break;

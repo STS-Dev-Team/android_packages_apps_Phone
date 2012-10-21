@@ -402,7 +402,7 @@ public class PhoneUtils {
             return null;
             }
 
-        if (phone.getPhoneType() == Phone.PHONE_TYPE_CDMA) {
+        if (phone.getPhoneType() == PhoneConstants.PHONE_TYPE_CDMA) {
             return call.getLatestConnection();
         }
 

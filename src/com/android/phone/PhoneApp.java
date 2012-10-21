@@ -1715,7 +1715,7 @@ public class PhoneApp extends Application implements AccelerometerListener.Orien
                    * in such a scenario
                    */
                   if (mAccelerometerListener != null) {
-                      mAccelerometerListener.enable(mLastPhoneState == Phone.State.OFFHOOK &&
+                      mAccelerometerListener.enable(mLastPhoneState == PhoneConstants.State.OFFHOOK &&
                               action.equals(Intent.ACTION_SCREEN_ON));
                   }
             } else if (action.equals(ACTION_VIBRATE_45)) {
