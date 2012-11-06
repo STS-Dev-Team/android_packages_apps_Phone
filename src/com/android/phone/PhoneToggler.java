@@ -9,6 +9,7 @@ import android.os.Message;
 import android.util.Log;
 
 import com.android.internal.telephony.Phone;
+import com.android.internal.telephony.PhoneConstants;
 import com.android.internal.telephony.PhoneFactory;
 
 public class PhoneToggler extends BroadcastReceiver  {
@@ -46,9 +47,9 @@ public class PhoneToggler extends BroadcastReceiver  {
                 int networkMode = intent.getExtras().getInt(NETWORK_MODE);
                 boolean networkModeOk = false;
                 int phoneType = getPhone().getPhoneType();
-                boolean isLteOnCdma = getPhone().getLteOnCdmaMode() == Phone.LTE_ON_CDMA_TRUE;
+                boolean isLteOnCdma = getPhone().getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
 
-                if (phoneType == Phone.PHONE_TYPE_GSM) {
+                if (phoneType == PhoneConstants.PHONE_TYPE_GSM) {
                     if (networkMode == Phone.NT_MODE_GSM_ONLY
                             || networkMode == Phone.NT_MODE_GSM_UMTS
                             || networkMode == Phone.NT_MODE_WCDMA_PREF
@@ -56,7 +57,7 @@ public class PhoneToggler extends BroadcastReceiver  {
                             || networkMode == Phone.NT_MODE_WCDMA_ONLY) {
                         networkModeOk = true;
                     }
-                } else if (phoneType == Phone.PHONE_TYPE_CDMA) {
+                } else if (phoneType == PhoneConstants.PHONE_TYPE_CDMA) {
                     if (networkMode == Phone.NT_MODE_CDMA
                             || networkMode == Phone.NT_MODE_CDMA_NO_EVDO
                             || networkMode == Phone.NT_MODE_EVDO_NO_CDMA) {
@@ -64,7 +65,10 @@ public class PhoneToggler extends BroadcastReceiver  {
                     }
                 }
                 if (context.getResources().getBoolean(R.bool.world_phone) || isLteOnCdma) {
-                    if (networkMode == Phone.NT_MODE_GLOBAL) {
+                    if (networkMode == Phone.NT_MODE_GLOBAL
+                            || networkMode == Phone.NT_MODE_LTE_CDMA_EVDO
+                            || networkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA
+                            || networkMode == Phone.NT_MODE_LTE_ONLY) {
                         networkModeOk = true;
                     }
                 }
@@ -136,10 +140,13 @@ public class PhoneToggler extends BroadcastReceiver  {
                         modemNetworkMode == Phone.NT_MODE_CDMA ||
                         modemNetworkMode == Phone.NT_MODE_CDMA_NO_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_EVDO_NO_CDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CDMA_EVDO ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA ||
+                        modemNetworkMode == Phone.NT_MODE_LTE_ONLY  ||
                         //A modem might report world phone sometimes
                         //but it's not true. Double check here
                         (getPhone().getContext().getResources().getBoolean(R.bool.world_phone) == true &&
-                            modemNetworkMode == Phone.NT_MODE_GLOBAL) ) {
+                            (modemNetworkMode == Phone.NT_MODE_GLOBAL || modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA)) ) {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = "+modemNetworkMode);
 
                     //check changes in modemNetworkMode and updates settingsNetworkMode
@@ -157,8 +164,6 @@ public class PhoneToggler extends BroadcastReceiver  {
                     Intent intent = new Intent(NETWORK_MODE_CHANGED);
                     intent.putExtra(NETWORK_MODE, settingsNetworkMode);
                     getPhone().getContext().sendBroadcast(intent,CHANGE_NETWORK_MODE_PERM);
-                } else if (modemNetworkMode == Phone.NT_MODE_LTE_ONLY) {
-                    if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: lte only: no action");
                 } else {
                     if (DBG) Log.d(LOG_TAG,"handleGetPreferredNetworkTypeResponse: else: reset to default");
                     resetNetworkModeToDefault();
