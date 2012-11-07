@@ -601,7 +601,6 @@ public class MobileNetworkSettings extends PreferenceActivity
                         R.string.preferred_network_mode_lte_only_summary);
                 break;
             case Phone.NT_MODE_GLOBAL:
-            default:
                 mButtonPreferredNetworkMode.setSummary(
                         R.string.preferred_network_mode_lte_cdma_summary);
         }

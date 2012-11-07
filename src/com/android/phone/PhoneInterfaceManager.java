@@ -377,7 +377,7 @@ public class PhoneInterfaceManager extends ITelephony.Stub {
         int network = -1;
         if (getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE) {
             if (on) {
-                network = Phone.NT_MODE_GLOBAL;
+                network = Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA;
             } else {
                 network = Phone.NT_MODE_CDMA;
             }
