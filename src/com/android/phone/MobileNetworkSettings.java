@@ -394,16 +394,11 @@ public class MobileNetworkSettings extends PreferenceActivity
                     case Phone.NT_MODE_LTE_GSM_WCDMA:
                         modemNetworkMode = Phone.NT_MODE_LTE_GSM_WCDMA;
                         break;
+                    case Phone.NT_MODE_LTE_ONLY:
+                        modemNetworkMode = Phone.NT_MODE_LTE_ONLY;
+                        break;
                     default:
                         modemNetworkMode = Phone.PREFERRED_NT_MODE;
-                }
-
-                // If button has no valid selection && setting is LTE ONLY
-                // mode, let the setting stay in LTE ONLY mode. UI is not
-                // supported but LTE ONLY mode could be used in testing.
-                if ((modemNetworkMode == Phone.PREFERRED_NT_MODE) &&
-                    (settingsNetworkMode == Phone.NT_MODE_LTE_ONLY)) {
-                    return true;
                 }
 
                 UpdatePreferredNetworkModeSummary(buttonNetworkMode);
@@ -464,7 +459,6 @@ public class MobileNetworkSettings extends PreferenceActivity
                             settingsNetworkMode);
                 }
 
-                boolean isLteOnCdma = mPhone.getLteOnCdmaMode() == PhoneConstants.LTE_ON_CDMA_TRUE;
                 //check that modemNetworkMode is from an accepted value
                 if (modemNetworkMode == Phone.NT_MODE_WCDMA_PREF ||
                         modemNetworkMode == Phone.NT_MODE_GSM_ONLY ||
@@ -476,10 +470,7 @@ public class MobileNetworkSettings extends PreferenceActivity
                         modemNetworkMode == Phone.NT_MODE_LTE_CDMA_EVDO ||
                         modemNetworkMode == Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA ||
                         modemNetworkMode == Phone.NT_MODE_LTE_GSM_WCDMA ||
-                        //A modem might report world phone sometimes
-                        //but it's not true. Double check here
-                        ((getResources().getBoolean(R.bool.world_phone) == true || isLteOnCdma) &&
-                            modemNetworkMode == Phone.NT_MODE_GLOBAL) ) {
+                        modemNetworkMode == Phone.NT_MODE_GLOBAL ) {
                     if (DBG) {
                         log("handleGetPreferredNetworkTypeResponse: if 1: modemNetworkMode = " +
                                 modemNetworkMode);
@@ -604,6 +595,10 @@ public class MobileNetworkSettings extends PreferenceActivity
             case Phone.NT_MODE_LTE_CMDA_EVDO_GSM_WCDMA:
                 mButtonPreferredNetworkMode.setSummary(
                         R.string.preferred_network_mode_lte_cdma_evdo_gsm_wcdma_summary);
+                break;
+            case Phone.NT_MODE_LTE_ONLY:
+                mButtonPreferredNetworkMode.setSummary(
+                        R.string.preferred_network_mode_lte_only_summary);
                 break;
             case Phone.NT_MODE_GLOBAL:
             default:
