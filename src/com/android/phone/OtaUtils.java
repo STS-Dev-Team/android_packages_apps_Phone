@@ -337,7 +337,7 @@ public class OtaUtils {
             } else {
                 if (DBG) log("maybeDoOtaCall: voice capable; activation NOT started.");
             }
-        } else {
+/*        } else {
             if (phoneNeedsActivation) {
                 app.cdmaOtaProvisionData.isOtaCallIntentProcessed = false;
                 Intent newIntent = new Intent(ACTION_PERFORM_VOICELESS_CDMA_PROVISIONING);
@@ -347,7 +347,7 @@ public class OtaUtils {
                 if (DBG) log("maybeDoOtaCall: non-interactive; activation intent sent.");
             } else {
                 if (DBG) log("maybeDoOtaCall: non-interactive, no need for OTASP.");
-            }
+            } */
         }
         return true;
     }
