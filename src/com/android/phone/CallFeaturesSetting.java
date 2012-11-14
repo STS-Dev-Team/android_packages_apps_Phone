@@ -39,6 +39,7 @@ import android.os.AsyncResult;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.UserHandle;
 import android.os.Vibrator;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -95,7 +96,7 @@ public class CallFeaturesSetting extends PreferenceActivity
         EditPhoneNumberPreference.OnDialogClosedListener,
         EditPhoneNumberPreference.GetDefaultNumberListener{
     private static final String LOG_TAG = "CallFeaturesSetting";
-    private static final boolean DBG = (PhoneApp.DBG_LEVEL >= 2);
+    private static final boolean DBG = (PhoneGlobals.DBG_LEVEL >= 2);
 
     protected Context mContext;
 
@@ -476,8 +477,8 @@ public class CallFeaturesSetting extends PreferenceActivity
         } else if (preference == mButtonTTY) {
             return true;
         } else if (preference == mButtonAutoRetry) {
-            android.provider.Settings.System.putInt(mPhone.getContext().getContentResolver(),
-                    android.provider.Settings.System.CALL_AUTO_RETRY,
+            android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
+                    android.provider.Settings.Global.CALL_AUTO_RETRY,
                     mButtonAutoRetry.isChecked() ? 1 : 0);
             return true;
         } else if (preference == mButtonHAC) {
@@ -1484,7 +1485,7 @@ public class CallFeaturesSetting extends PreferenceActivity
     protected void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         if (DBG) log("onCreate(). Intent: " + getIntent());
-        mPhone = PhoneApp.getPhone();
+        mPhone = PhoneGlobals.getPhone();
 
         addPreferencesFromResource(R.xml.call_feature_setting);
 
@@ -1727,8 +1728,8 @@ public class CallFeaturesSetting extends PreferenceActivity
         }
 
         if (mButtonAutoRetry != null) {
-            int autoretry = Settings.System.getInt(getContentResolver(),
-                    Settings.System.CALL_AUTO_RETRY, 0);
+            int autoretry = Settings.Global.getInt(getContentResolver(),
+                    Settings.Global.CALL_AUTO_RETRY, 0);
             mButtonAutoRetry.setChecked(autoretry != 0);
         }
 
@@ -1801,7 +1802,7 @@ public class CallFeaturesSetting extends PreferenceActivity
             updatePreferredTtyModeSummary(buttonTtyMode);
             Intent ttyModeChanged = new Intent(TtyIntent.TTY_PREFERRED_MODE_CHANGE_ACTION);
             ttyModeChanged.putExtra(TtyIntent.TTY_PREFFERED_MODE, buttonTtyMode);
-            sendBroadcast(ttyModeChanged);
+            sendBroadcastAsUser(ttyModeChanged, UserHandle.ALL);
         }
     }
 

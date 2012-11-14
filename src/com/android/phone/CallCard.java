@@ -33,6 +33,7 @@ import android.text.TextUtils;
 import android.text.format.DateUtils;
 import android.util.AttributeSet;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
@@ -61,7 +62,7 @@ public class CallCard extends LinearLayout
         implements CallTime.OnTickListener, CallerInfoAsyncQuery.OnQueryCompleteListener,
                    ContactsAsyncHelper.OnImageLoadCompleteListener {
     private static final String LOG_TAG = "CallCard";
-    private static final boolean DBG = (PhoneApp.DBG_LEVEL >= 2);
+    private static final boolean DBG = (PhoneGlobals.DBG_LEVEL >= 2);
 
     private static final int TOKEN_UPDATE_PHOTO_FOR_CALL_STATE = 0;
     private static final int TOKEN_DO_NOTHING = 1;
@@ -89,7 +90,7 @@ public class CallCard extends LinearLayout
     private InCallScreen mInCallScreen;
 
     // Phone app instance
-    private PhoneApp mApplication;
+    private PhoneGlobals mApplication;
 
     // Top-level subviews of the CallCard
     /** Container for info about the current call(s) */
@@ -181,7 +182,7 @@ public class CallCard extends LinearLayout
         if (DBG) log("- this = " + this);
         if (DBG) log("- context " + context + ", attrs " + attrs);
 
-        mApplication = PhoneApp.getInstance();
+        mApplication = PhoneGlobals.getInstance();
 
         mCallTime = new CallTime(this);
 
@@ -255,8 +256,12 @@ public class CallCard extends LinearLayout
         Call fgCall = cm.getActiveFgCall();
         Call bgCall = cm.getFirstActiveBgCall();
 
-        // Update the overall layout of the onscreen elements.
-        updateCallInfoLayout(state);
+        // Update the overall layout of the onscreen elements, if in PORTRAIT.
+        // Portrait uses a programatically altered layout, whereas landscape uses layout xml's.
+        // Landscape view has the views side by side, so no shifting of the picture is needed
+        if (!PhoneUtils.isLandscape(this.getContext())) {
+            updateCallInfoLayout(state);
+        }
 
         // If the FG call is dialing/alerting, we should display for that call
         // and ignore the ringing call. This case happens when the telephony
@@ -810,7 +815,7 @@ public class CallCard extends LinearLayout
                 // Display "Dialing" while dialing a 3Way call, even
                 // though the foreground call state is actually ACTIVE.
                 callStateLabel = context.getString(R.string.card_title_dialing);
-            } else if (PhoneApp.getInstance().notifier.getIsCdmaRedialCall()) {
+            } else if (PhoneGlobals.getInstance().notifier.getIsCdmaRedialCall()) {
                 callStateLabel = context.getString(R.string.card_title_redialing);
             }
         }
@@ -866,6 +871,14 @@ public class CallCard extends LinearLayout
             }
         } else {
             mCallStateLabel.setVisibility(View.GONE);
+            // Gravity is aligned left when receiving an incoming call in landscape.
+            // In that rare case, the gravity needs to be reset to the right.
+            // Also, setText("") is used since there is a delay in making the view GONE,
+            // so the user will otherwise see the text jump to the right side before disappearing.
+            if(mCallStateLabel.getGravity() != Gravity.RIGHT) {
+                mCallStateLabel.setText("");
+                mCallStateLabel.setGravity(Gravity.RIGHT);
+            }
         }
         if (skipAnimation) {
             // Restore LayoutTransition object to recover animation.
@@ -942,7 +955,7 @@ public class CallCard extends LinearLayout
     private void displaySecondaryCallStatus(CallManager cm, Call call) {
         if (DBG) log("displayOnHoldCallStatus(call =" + call + ")...");
 
-        if ((call == null) || (PhoneApp.getInstance().isOtaCallInActiveState())) {
+        if ((call == null) || (PhoneGlobals.getInstance().isOtaCallInActiveState())) {
             mSecondaryCallInfo.setVisibility(View.GONE);
             return;
         }
@@ -999,7 +1012,7 @@ public class CallCard extends LinearLayout
                     List<Connection> connections = call.getConnections();
                     if (connections.size() > 2) {
                         // This means that current Mobile Originated call is the not the first 3-Way
-                        // call the user is making, which in turn tells the PhoneApp that we no
+                        // call the user is making, which in turn tells the PhoneGlobals that we no
                         // longer know which previous caller/party had dropped out before the user
                         // made this call.
                         mSecondaryCallName.setText(

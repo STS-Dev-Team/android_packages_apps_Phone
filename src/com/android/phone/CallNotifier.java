@@ -31,6 +31,9 @@ import com.android.internal.telephony.cdma.CdmaInformationRecords.CdmaSignalInfo
 import com.android.internal.telephony.cdma.SignalToneUtil;
 
 import android.app.ActivityManagerNative;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothHeadset;
+import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
@@ -61,8 +64,8 @@ public class CallNotifier extends Handler
         implements CallerInfoAsyncQuery.OnQueryCompleteListener {
     private static final String LOG_TAG = "CallNotifier";
     private static final boolean DBG =
-            (PhoneApp.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
-    private static final boolean VDBG = (PhoneApp.DBG_LEVEL >= 2);
+            (PhoneGlobals.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
+    private static final boolean VDBG = (PhoneGlobals.DBG_LEVEL >= 2);
 
     // Maximum time we allow the CallerInfo query to run,
     // before giving up and falling back to the default ringtone.
@@ -148,10 +151,10 @@ public class CallNotifier extends Handler
     private static final int EMERGENCY_TONE_ALERT = 1;
     private static final int EMERGENCY_TONE_VIBRATE = 2;
 
-    private PhoneApp mApplication;
+    private PhoneGlobals mApplication;
     private CallManager mCM;
     private Ringer mRinger;
-    private BluetoothHandsfree mBluetoothHandsfree;
+    private BluetoothHeadset mBluetoothHeadset;
     private CallLogAsync mCallLog;
     private boolean mSilentRingerRequested;
 
@@ -183,11 +186,11 @@ public class CallNotifier extends Handler
      * Initialize the singleton CallNotifier instance.
      * This is only done once, at startup, from PhoneApp.onCreate().
      */
-    /* package */ static CallNotifier init(PhoneApp app, Phone phone, Ringer ringer,
-                                           BluetoothHandsfree btMgr, CallLogAsync callLog) {
+    /* package */ static CallNotifier init(PhoneGlobals app, Phone phone, Ringer ringer,
+                                           CallLogAsync callLog) {
         synchronized (CallNotifier.class) {
             if (sInstance == null) {
-                sInstance = new CallNotifier(app, phone, ringer, btMgr, callLog);
+                sInstance = new CallNotifier(app, phone, ringer, callLog);
             } else {
                 Log.wtf(LOG_TAG, "init() called multiple times!  sInstance = " + sInstance);
             }
@@ -196,8 +199,7 @@ public class CallNotifier extends Handler
     }
 
     /** Private constructor; @see init() */
-    private CallNotifier(PhoneApp app, Phone phone, Ringer ringer,
-                         BluetoothHandsfree btMgr, CallLogAsync callLog) {
+    private CallNotifier(PhoneGlobals app, Phone phone, Ringer ringer, CallLogAsync callLog) {
         mApplication = app;
         mCM = app.mCM;
         mCallLog = callLog;
@@ -220,7 +222,12 @@ public class CallNotifier extends Handler
         }
 
         mRinger = ringer;
-        mBluetoothHandsfree = btMgr;
+        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
+        if (adapter != null) {
+            adapter.getProfileProxy(mApplication.getApplicationContext(),
+                                    mBluetoothProfileServiceListener,
+                                    BluetoothProfile.HEADSET);
+        }
 
         TelephonyManager telephonyManager = (TelephonyManager)app.getSystemService(
                 Context.TELEPHONY_SERVICE);
@@ -435,7 +442,7 @@ public class CallNotifier extends Handler
         // (This will be upgraded soon to a full wake lock; see
         // showIncomingCall().)
         if (VDBG) log("Holding wake lock on new incoming connection.");
-        mApplication.requestWakeState(PhoneApp.WakeState.PARTIAL);
+        mApplication.requestWakeState(PhoneGlobals.WakeState.PARTIAL);
 
         // - don't ring for call waiting connections
         // - do this before showing the incoming call panel
@@ -484,7 +491,7 @@ public class CallNotifier extends Handler
      */
     private boolean ignoreAllIncomingCalls(Phone phone) {
         // Incoming calls are totally ignored on non-voice-capable devices.
-        if (!PhoneApp.sVoiceCapable) {
+        if (!PhoneGlobals.sVoiceCapable) {
             // ...but still log a warning, since we shouldn't have gotten this
             // event in the first place!  (Incoming calls *should* be blocked at
             // the telephony layer on non-voice-capable capable devices.)
@@ -501,8 +508,8 @@ public class CallNotifier extends Handler
         }
 
         // Incoming calls are totally ignored if the device isn't provisioned yet.
-        boolean provisioned = Settings.Secure.getInt(mApplication.getContentResolver(),
-            Settings.Secure.DEVICE_PROVISIONED, 0) != 0;
+        boolean provisioned = Settings.Global.getInt(mApplication.getContentResolver(),
+            Settings.Global.DEVICE_PROVISIONED, 0) != 0;
         if (!provisioned) {
             Log.i(LOG_TAG, "Ignoring incoming call: not provisioned");
             return true;
@@ -701,34 +708,7 @@ public class CallNotifier extends Handler
         // Go directly to the in-call screen.
         // (No need to do anything special if we're already on the in-call
         // screen; it'll notice the phone state change and update itself.)
-
-        // But first, grab a full wake lock.  We do this here, before we
-        // even fire off the InCallScreen intent, to make sure the
-        // ActivityManager doesn't try to pause the InCallScreen as soon
-        // as it comes up.  (See bug 1648751.)
-        //
-        // And since the InCallScreen isn't visible yet (we haven't even
-        // fired off the intent yet), we DON'T want the screen to actually
-        // come on right now.  So *before* acquiring the wake lock we need
-        // to call preventScreenOn(), which tells the PowerManager that
-        // the screen should stay off even if someone's holding a full
-        // wake lock.  (This prevents any flicker during the "incoming
-        // call" sequence.  The corresponding preventScreenOn(false) call
-        // will come from the InCallScreen when it's finally ready to be
-        // displayed.)
-        //
-        // TODO: this is all a temporary workaround.  The real fix is to add
-        // an Activity attribute saying "this Activity wants to wake up the
-        // phone when it's displayed"; that way the ActivityManager could
-        // manage the wake locks *and* arrange for the screen to come on at
-        // the exact moment that the InCallScreen is ready to be displayed.
-        // (See bug 1648751.)
-        //
-        // TODO: also, we should probably *not* do any of this if the
-        // screen is already on(!)
-
-        mApplication.preventScreenOn(true);
-        mApplication.requestWakeState(PhoneApp.WakeState.FULL);
+        mApplication.requestWakeState(PhoneGlobals.WakeState.FULL);
 
         // Post the "incoming call" notification *and* include the
         // fullScreenIntent that'll launch the incoming-call UI.
@@ -797,8 +777,7 @@ public class CallNotifier extends Handler
             // if the call screen is showing, let it handle the event,
             // otherwise handle it here.
             if (!mApplication.isShowingCallScreen()) {
-                mApplication.setScreenTimeout(PhoneApp.ScreenTimeoutDuration.DEFAULT);
-                mApplication.requestWakeState(PhoneApp.WakeState.SLEEP);
+                mApplication.requestWakeState(PhoneGlobals.WakeState.SLEEP);
             }
 
             // Since we're now in-call, the Ringer should definitely *not*
@@ -842,9 +821,9 @@ public class CallNotifier extends Handler
                 }
 
                 if (callState == Call.State.DIALING || callState == Call.State.ALERTING) {
-                    mIsEmergencyToneOn = Settings.System.getInt(
+                    mIsEmergencyToneOn = Settings.Global.getInt(
                             mApplication.getContentResolver(),
-                            Settings.System.EMERGENCY_TONE, EMERGENCY_TONE_OFF);
+                            Settings.Global.EMERGENCY_TONE, EMERGENCY_TONE_OFF);
                     if (mIsEmergencyToneOn != EMERGENCY_TONE_OFF &&
                         mCurrentEmergencyToneState == EMERGENCY_TONE_OFF) {
                         if (mEmergencyTonePlayerVibrator != null) {
@@ -1033,8 +1012,8 @@ public class CallNotifier extends Handler
 
         int autoretrySetting = 0;
         if ((c != null) && (c.getCall().getPhone().getPhoneType() == PhoneConstants.PHONE_TYPE_CDMA)) {
-            autoretrySetting = android.provider.Settings.System.getInt(mApplication.
-                    getContentResolver(),android.provider.Settings.System.CALL_AUTO_RETRY, 0);
+            autoretrySetting = android.provider.Settings.Global.getInt(mApplication.
+                    getContentResolver(),android.provider.Settings.Global.CALL_AUTO_RETRY, 0);
         }
 
         // Stop any signalInfo tone being played when a call gets ended
@@ -1160,14 +1139,6 @@ public class CallNotifier extends Handler
             }
 
             mApplication.notificationMgr.cancelCallInProgressNotifications();
-
-            // If the screen is turned off when all the phone calls are hung up,
-            // InCallScreen#onDisconnect() will wake up the screen (only once) and let users
-            // check the disconnected status.
-            if (mApplication.isShowingCallScreen()) {
-                if (VDBG) log("onDisconnect: In call screen. Set short timeout.");
-                mApplication.clearUserActivityTimeout();
-            }
         }
 
         if (c != null) {
@@ -1292,8 +1263,8 @@ public class CallNotifier extends Handler
     private void resetAudioStateAfterDisconnect() {
         if (VDBG) log("resetAudioStateAfterDisconnect()...");
 
-        if (mBluetoothHandsfree != null) {
-            mBluetoothHandsfree.audioOff();
+        if (mBluetoothHeadset != null) {
+            mBluetoothHeadset.disconnectAudio();
         }
 
         // call turnOnSpeaker() with state=false and store=true even if speaker
@@ -1308,7 +1279,7 @@ public class CallNotifier extends Handler
 
         // "Voicemail" is meaningless on non-voice-capable devices,
         // so ignore MWI events.
-        if (!PhoneApp.sVoiceCapable) {
+        if (!PhoneGlobals.sVoiceCapable) {
             // ...but still log a warning, since we shouldn't have gotten this
             // event in the first place!
             // (PhoneStateListener.LISTEN_MESSAGE_WAITING_INDICATOR events
@@ -1528,8 +1499,8 @@ public class CallNotifier extends Handler
             ToneGenerator toneGenerator;
             try {
                 int stream;
-                if (mBluetoothHandsfree != null) {
-                    stream = mBluetoothHandsfree.isAudioOn() ? AudioManager.STREAM_BLUETOOTH_SCO:
+                if (mBluetoothHeadset != null) {
+                    stream = mBluetoothHeadset.isAudioOn() ? AudioManager.STREAM_BLUETOOTH_SCO:
                         AudioManager.STREAM_VOICE_CALL;
                 } else {
                     stream = AudioManager.STREAM_VOICE_CALL;
@@ -1694,7 +1665,7 @@ public class CallNotifier extends Handler
      */
     private void onSignalInfo(AsyncResult r) {
         // Signal Info are totally ignored on non-voice-capable devices.
-        if (!PhoneApp.sVoiceCapable) {
+        if (!PhoneGlobals.sVoiceCapable) {
             Log.w(LOG_TAG, "Got onSignalInfo() on non-voice-capable device! Ignoring...");
             return;
         }
@@ -1994,6 +1965,18 @@ public class CallNotifier extends Handler
             mCurrentEmergencyToneState = EMERGENCY_TONE_OFF;
         }
     }
+
+     private BluetoothProfile.ServiceListener mBluetoothProfileServiceListener =
+        new BluetoothProfile.ServiceListener() {
+        public void onServiceConnected(int profile, BluetoothProfile proxy) {
+            mBluetoothHeadset = (BluetoothHeadset) proxy;
+            if (VDBG) log("- Got BluetoothHeadset: " + mBluetoothHeadset);
+        }
+
+        public void onServiceDisconnected(int profile) {
+            mBluetoothHeadset = null;
+        }
+    };
 
     private void onRingbackTone(AsyncResult r) {
         boolean playTone = (Boolean)(r.result);

@@ -148,8 +148,8 @@ public class MobileNetworkSettings extends PreferenceActivity
             return true;
         } else if (preference == mButtonPreferredNetworkMode) {
             //displays the value taken from the Settings.System
-            int settingsNetworkMode = android.provider.Settings.Secure.getInt(mPhone.getContext().
-                    getContentResolver(), android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+            int settingsNetworkMode = android.provider.Settings.Global.getInt(mPhone.getContext().
+                    getContentResolver(), android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                     preferredNetworkMode);
             mButtonPreferredNetworkMode.setValue(Integer.toString(settingsNetworkMode));
             return true;
@@ -180,8 +180,8 @@ public class MobileNetworkSettings extends PreferenceActivity
             cm.setMobileDataEnabled(mButtonDataEnabled.isChecked());
             return true;
         } else if (preference == mLteDataServicePref) {
-            String tmpl = android.provider.Settings.Secure.getString(getContentResolver(),
-                        android.provider.Settings.Secure.SETUP_PREPAID_DATA_SERVICE_URL);
+            String tmpl = android.provider.Settings.Global.getString(getContentResolver(),
+                        android.provider.Settings.Global.SETUP_PREPAID_DATA_SERVICE_URL);
             if (!TextUtils.isEmpty(tmpl)) {
                 TelephonyManager tm = (TelephonyManager) getSystemService(
                         Context.TELEPHONY_SERVICE);
@@ -213,7 +213,7 @@ public class MobileNetworkSettings extends PreferenceActivity
 
         addPreferencesFromResource(R.xml.network_setting);
 
-        mPhone = PhoneApp.getPhone();
+        mPhone = PhoneGlobals.getPhone();
         mHandler = new MyHandler();
 
         //get UI object references
@@ -233,8 +233,8 @@ public class MobileNetworkSettings extends PreferenceActivity
             mButtonPreferredNetworkMode.setOnPreferenceChangeListener(this);
 
             //Get the networkMode from Settings.System and displays it
-            int settingsNetworkMode = android.provider.Settings.Secure.getInt(mPhone.getContext().
-                    getContentResolver(),android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+            int settingsNetworkMode = android.provider.Settings.Global.getInt(mPhone.getContext().
+                    getContentResolver(),android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                     preferredNetworkMode);
             mButtonPreferredNetworkMode.setValue(Integer.toString(settingsNetworkMode));
             mCdmaOptions = new CdmaOptions(this, prefSet, mPhone);
@@ -252,9 +252,9 @@ public class MobileNetworkSettings extends PreferenceActivity
                             R.array.preferred_network_mode_choices_lte);
                     mButtonPreferredNetworkMode.setEntryValues(
                             R.array.preferred_network_mode_values_lte);
-                    int settingsNetworkMode = android.provider.Settings.Secure.getInt(
+                    int settingsNetworkMode = android.provider.Settings.Global.getInt(
                             mPhone.getContext().getContentResolver(),
-                            android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+                            android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                             preferredNetworkMode);
                     mButtonPreferredNetworkMode.setValue(
                             Integer.toString(settingsNetworkMode));
@@ -268,8 +268,8 @@ public class MobileNetworkSettings extends PreferenceActivity
         }
 
         final boolean missingDataServiceUrl = TextUtils.isEmpty(
-                android.provider.Settings.Secure.getString(getContentResolver(),
-                        android.provider.Settings.Secure.SETUP_PREPAID_DATA_SERVICE_URL));
+                android.provider.Settings.Global.getString(getContentResolver(),
+                        android.provider.Settings.Global.SETUP_PREPAID_DATA_SERVICE_URL));
         if (!isLteOnCdma || missingDataServiceUrl) {
             prefSet.removePreference(mLteDataServicePref);
         } else {
@@ -331,9 +331,9 @@ public class MobileNetworkSettings extends PreferenceActivity
             mButtonPreferredNetworkMode.setValue((String) objValue);
             int buttonNetworkMode;
             buttonNetworkMode = Integer.valueOf((String) objValue).intValue();
-            int settingsNetworkMode = android.provider.Settings.Secure.getInt(
+            int settingsNetworkMode = android.provider.Settings.Global.getInt(
                     mPhone.getContext().getContentResolver(),
-                    android.provider.Settings.Secure.PREFERRED_NETWORK_MODE, preferredNetworkMode);
+                    android.provider.Settings.Global.PREFERRED_NETWORK_MODE, preferredNetworkMode);
             if (buttonNetworkMode != settingsNetworkMode) {
                 int modemNetworkMode;
                 switch(buttonNetworkMode) {
@@ -376,8 +376,8 @@ public class MobileNetworkSettings extends PreferenceActivity
 
                 UpdatePreferredNetworkModeSummary(buttonNetworkMode);
 
-                android.provider.Settings.Secure.putInt(mPhone.getContext().getContentResolver(),
-                        android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+                android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
+                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                         buttonNetworkMode );
                 //Set the modem network mode
                 mPhone.setPreferredNetworkType(modemNetworkMode, mHandler
@@ -418,9 +418,9 @@ public class MobileNetworkSettings extends PreferenceActivity
                             modemNetworkMode);
                 }
 
-                int settingsNetworkMode = android.provider.Settings.Secure.getInt(
+                int settingsNetworkMode = android.provider.Settings.Global.getInt(
                         mPhone.getContext().getContentResolver(),
-                        android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                         preferredNetworkMode);
 
                 if (DBG) {
@@ -458,9 +458,9 @@ public class MobileNetworkSettings extends PreferenceActivity
                         }
 
                         //changes the Settings.System accordingly to modemNetworkMode
-                        android.provider.Settings.Secure.putInt(
+                        android.provider.Settings.Global.putInt(
                                 mPhone.getContext().getContentResolver(),
-                                android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+                                android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                                 settingsNetworkMode );
                     }
 
@@ -483,8 +483,8 @@ public class MobileNetworkSettings extends PreferenceActivity
             if (ar.exception == null) {
                 int networkMode = Integer.valueOf(
                         mButtonPreferredNetworkMode.getValue()).intValue();
-                android.provider.Settings.Secure.putInt(mPhone.getContext().getContentResolver(),
-                        android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+                android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
+                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                         networkMode );
             } else {
                 mPhone.getPreferredNetworkType(obtainMessage(MESSAGE_GET_PREFERRED_NETWORK_TYPE));
@@ -495,8 +495,8 @@ public class MobileNetworkSettings extends PreferenceActivity
             //set the mButtonPreferredNetworkMode
             mButtonPreferredNetworkMode.setValue(Integer.toString(preferredNetworkMode));
             //set the Settings.System
-            android.provider.Settings.Secure.putInt(mPhone.getContext().getContentResolver(),
-                        android.provider.Settings.Secure.PREFERRED_NETWORK_MODE,
+            android.provider.Settings.Global.putInt(mPhone.getContext().getContentResolver(),
+                        android.provider.Settings.Global.PREFERRED_NETWORK_MODE,
                         preferredNetworkMode );
             //Set the Modem
             mPhone.setPreferredNetworkType(preferredNetworkMode,

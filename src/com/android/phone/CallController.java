@@ -61,14 +61,14 @@ import android.widget.Toast;
 public class CallController extends Handler {
     private static final String TAG = "CallController";
     private static final boolean DBG =
-            (PhoneApp.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
+            (PhoneGlobals.DBG_LEVEL >= 1) && (SystemProperties.getInt("ro.debuggable", 0) == 1);
     // Do not check in with VDBG = true, since that may write PII to the system log.
     private static final boolean VDBG = false;
 
     /** The singleton CallController instance. */
     private static CallController sInstance;
 
-    private PhoneApp mApp;
+    private PhoneGlobals mApp;
     private CallManager mCM;
 
     /** Helper object for emergency calls in some rare use cases.  Created lazily. */
@@ -100,7 +100,7 @@ public class CallController extends Handler {
      * PhoneApp's public "callController" field, which is why there's no
      * getInstance() method here.
      */
-    /* package */ static CallController init(PhoneApp app) {
+    /* package */ static CallController init(PhoneGlobals app) {
         synchronized (CallController.class) {
             if (sInstance == null) {
                 sInstance = new CallController(app);
@@ -115,7 +115,7 @@ public class CallController extends Handler {
      * Private constructor (this is a singleton).
      * @see init()
      */
-    private CallController(PhoneApp app) {
+    private CallController(PhoneGlobals app) {
         if (DBG) log("CallController constructor: app = " + app);
         mApp = app;
         mCM = app.mCM;
@@ -504,6 +504,12 @@ public class CallController extends Handler {
                 // in-call UI while the new call is dialing, and when it
                 // first gets connected.)
                 inCallUiState.showDialpad = voicemailUriSpecified;
+
+                // For voicemails, we add context text to let the user know they
+                // are dialing their voicemail.
+                // TODO: This is only set here and becomes problematic when swapping calls
+                inCallUiState.dialpadContextText = voicemailUriSpecified ?
+                    phone.getVoiceMailAlphaTag() : "";
 
                 // Also, in case a previous call was already active (i.e. if
                 // we just did "Add call"), clear out the "history" of DTMF
